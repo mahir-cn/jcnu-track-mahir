@@ -1,0 +1,50 @@
+1.Find nodes for classes and interfaces
+match(n:TypeDeclaration) where n.entity_type = "class" or n.entity_type = "interface" return n
+
+2.Find all methods with 4 or more parameters.
+match (n:MethodDeclaration)-[r:parameter]->() with n, count(r) as cr where cr >= 4 return n
+
+
+3.Find all methods with 10 or more statement.
+MATCH (n:MethodDeclaration) where toInteger(n.CountStmt) >= 10 RETURN n 
+
+4.Find all methods with 50 or more lines of code.
+MATCH (n:MethodDeclaration) where toInteger(n.CountLineCode) >= 50 RETURN n
+
+5.Find all methods of a class # Order is the example class here
+MATCH (n:MethodDeclaration) where split(toString(n.longname),'.')[-2] = 'Order' return n
+
+6.Find package of a class #Order is the example class here
+match (n)
+where n.entity_type = 'class' and n.simplename = 'Order' 
+return substring(toString(n.longname),0,toInteger(size(toString(n.longname))) - toInteger(size('Order')))
+
+7.Find all classes of a package #here package name is com.iluwatar.intercepting.filter
+match (n)
+where n.entity_type = 'class' and substring(toString(n.longname),0,toInteger(size(toString(n.longname))) - toInteger(size(toString(n.simplename)))) = 'com.iluwatar.intercepting.filter.' 
+return n.simplename
+
+8.Cyclomatic Complexity #Order is the class for which it is done
+MATCH (n:MethodDeclaration) where split(toString(n.longname),'.')[-2] = 'Order' return sum(toInteger(n.Cyclomatic))
+
+9.Find if statements where condition is a boolean value
+match (n:IfStatement)-[r:condition]->(m)
+where m.operator is not  null
+return n
+
+10.Find if statements where condition is not  a boolean value
+match (n:IfStatement)-[r:condition]->(m)
+where m.operator is   null
+return n
+
+
+11.Tight cohesion matrix
+match (n:TypeDeclaration) where n.entity_type = 'class' return n,n.PercentLackOfCohesion
+
+12.ShortestPath
+match (n:TypeDeclaration),(m:CGF_EXIT_NODE),p = ShortestPath((n)-[*..4]->(m))
+return n,m,p
+
+13. Transitive closure
+match (n)-[*..50]->(m:TypeDeclaration)
+return m,n

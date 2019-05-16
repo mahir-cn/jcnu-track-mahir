@@ -1,0 +1,12 @@
+
+1.Singleton #done only till filtering classes which have only private constructors
+match (n:TypeDeclaration)-[]->(m:MethodDeclaration) where n.entity_type = 'class' and  m.isConstructor = 'True' and m.modifiers = '[private]'
+with distinct n
+match (n)-[]->(m:FieldDeclaration)
+where m.modifiers =~ '.*static.*' and m.modifiers =~ '.*private.*' 
+with n,m
+match (m)-[r:type]->(k:SimpleType)
+where n.simplename = k.name
+RETURN distinct  n,m,k
+
+2.Builder Patterns
